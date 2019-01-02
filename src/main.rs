@@ -9,9 +9,11 @@ use piston::input::*;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
 
+mod player;
+
 pub struct App {
     gl: GlGraphics,     // OpenGL drawing backend.
-    player: Player,      // Player struct.
+    player: player::player_model::Player,      // Player struct.
     deceleration: f64
 }
 
@@ -44,92 +46,18 @@ impl App {
         let x_vel = match btn {
             &Button::Keyboard(Key::Right)    => 1.0,
             &Button::Keyboard(Key::Left)     => -1.0,
-            _ if self.player.pos.x_vel < 0.0 => self.deceleration,
-            _ if self.player.pos.x_vel > 0.0 => -1.0*self.deceleration,
             _                                => 0.0
 
         };
         let y_vel = match btn {
             &Button::Keyboard(Key::Down)     => 1.0,
             &Button::Keyboard(Key::Up)       => -1.0,
-            _ if self.player.pos.y_vel < 0.0 => self.deceleration,
-            _ if self.player.pos.y_vel > 0.0 => -1.0*self.deceleration,
             _                                => 0.0
         };
-        self.player.pos.x_vel += x_vel;
-        self.player.pos.y_vel += y_vel;
+        self.player.vel.x += x_vel;
+        self.player.vel.y += y_vel;
         
     }
-
-}
-
-pub struct Player {
-
-    gl: GlGraphics,
-    rotation: f64,
-    size: f64,
-    pos: Position
-}
-
-impl Player {
-    pub fn render(&mut self, args: &RenderArgs) {
-        use graphics::*;
-
-        const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-
-        let size = self.size;
-        let square = rectangle::square(0.0, 0.0, size);
-        
-        let (x, y) = (self.pos.x,
-                      self.pos.y);
-
-        self.gl.draw(args.viewport(), |c, gl| {
-            let transform = c.transform.trans(x, y);
-
-            // Draw a box rotating around the middle of the screen.
-            rectangle(RED, square, transform, gl);
-        });
-
-    }
-    
-    fn update(&mut self){
-        self.pos.x = self.pos.x + self.pos.x_vel;
-        self.pos.y = self.pos.y + self.pos.y_vel;
-    }
-
-    pub fn moving(&mut self) -> bool {
-
-        if self.pos.x_vel.abs() != 0.0 {
-            true
-        } else {
-            false
-        }
-
-    }
-
-    pub fn decelerate(&mut self, deceleration_factor: f64){
-
-        let mut scale = self.pos.x_vel.abs().round();
-        if scale == 0.0{
-            scale = 1.0;
-        }
-        if self.pos.x_vel.abs() <= deceleration_factor {
-            self.pos.x_vel = 0.0;
-            println!("Reset x_vel: {}",self.pos.x_vel);
-        } else if self.pos.x_vel > deceleration_factor {
-            self.pos.x_vel -= deceleration_factor*scale;
-        } else if self.pos.x_vel < deceleration_factor {
-            self.pos.x_vel += deceleration_factor*scale;
-        }
-    }
-}
-
-pub struct Position{
-
-    x: f64,
-    y: f64,
-    x_vel: f64,
-    y_vel: f64
 
 }
 
@@ -139,29 +67,29 @@ fn main() {
 
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new(
-            "spinning-square",
-            [600, 600]
+            "game",
+            [600, 400]
         )
         .opengl(opengl)
         .exit_on_esc(true)
         .build()
         .unwrap();
 
-    let starting_position = Position {
-        x: 10.0,
-        y: 10.0,
-        x_vel: 0.0,
-        y_vel: 0.0
-    };
-
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        player: Player {
+        player: player::player_model::Player {
             gl: GlGraphics::new(opengl),
             rotation: 0.0,
             size: 25.0,
-            pos: starting_position
+            pos: player::player_model::Position {
+                x: 0.0,
+                y: 0.0
+            },
+            vel: player::player_model::Velocity {
+                x: 0.0,
+                y: 0.0
+            }
         },
         deceleration: 0.1
     };
