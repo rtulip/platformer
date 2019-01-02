@@ -190,10 +190,16 @@ pub mod player_model {
 
             if self.pos.x < 0.0 {
                 self.pos.x = 0.0;
-                self.vel.x = -1.0*self.vel.x/4.0;
+                self.vel.x = -1.0 * self.vel.x / 4.0;
             } else if self.pos.x + self.size > width {
                 self.pos.x = width-self.size;
-                self.vel.x = -1.0*self.vel.x/4.0; 
+                self.vel.x = -1.0 * self.vel.x / 4.0; 
+            } else if self.pos.y < 0.0 {
+                self.pos.y = 0.0;
+                self.vel.y = -1.0 * self.vel.y / 4.0;
+            } else if self.pos.y + self.size > height {
+                self.pos.y = height-self.size;
+                self.vel.y = -1.0 * self.vel.y / 4.0
             }
 
         }

@@ -10,10 +10,12 @@ use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
 
 mod player;
+mod map;
 
 pub struct App {
     gl: GlGraphics,     // OpenGL drawing backend.
     player: player::player_model::Player,      // Player struct.
+    map: map::map_model::Map,
 }
 
 impl App {
@@ -61,6 +63,7 @@ fn main() {
     let mut app = App {
         gl: GlGraphics::new(opengl),
         player: player::player_model::new(),
+        map: map::map_model::new(600.0, 400.0, 25.0)
     };
 
     let mut events = Events::new(EventSettings::new());
