@@ -5,7 +5,7 @@ extern crate opengl_graphics;
 pub mod player_model {
     
     use opengl_graphics::{GlGraphics,OpenGL};
-    use piston::input::RenderArgs;
+    use piston::input::*;
 
     pub struct Player {
 
@@ -97,22 +97,60 @@ pub mod player_model {
             });
 
         }
+
+        pub fn pressed(&mut self, btn: &Button) {
+            match self.state {
+
+                PlayerState::Stopped => {
+                    
+                    // Start movement & switch State
+                    match btn {
+                        &Button::Keyboard(Key::Right) => {
+                            self.vel.x += 1.5;
+                            self.state = PlayerState::Walking;
+                        },
+                        &Button::Keyboard(Key::Left) => {
+                            self.vel.x -= 1.5;
+                            self.state = PlayerState::Walking
+                        },
+                        _ => {}
+                    }
+                    
+                },
+                PlayerState::Falling => {
+                    // Allow movement
+                },
+                PlayerState::Walking => {
+                    
+                    match btn {
+                        &Button::Keyboard(Key::Right) => {
+                            self.vel.x += 1.0;
+                        },
+                        &Button::Keyboard(Key::Left) => {
+                            self.vel.x -= 1.0;
+                        },
+                        _ => {}  
+                    }
+
+                }
+
+            }        
+        }
         
         pub fn update(&mut self){
-            self.pos.x = self.pos.x + self.vel.x;
-            self.pos.y = self.pos.y + self.vel.y;
-
-            self.decelerate();
-        }
-
-        pub fn moving(&mut self) -> bool {
-
-            if self.vel.x.abs() != 0.0 {
-                true
-            } else {
-                false
+            match self.state {
+                PlayerState::Walking => {
+                    self.pos.x = self.pos.x + self.vel.x;
+                    self.pos.y = self.pos.y + self.vel.y;
+                    self.decelerate();
+                },
+                PlayerState::Stopped => {
+                    //println!("Stopped");
+                },
+                PlayerState::Falling => {
+                    println!("Falling");
+                }
             }
-
         }
 
         pub fn decelerate(&mut self){
@@ -125,6 +163,7 @@ pub mod player_model {
             if self.vel.x.abs() <= self.rules.friction {
                 
                 self.vel.x = 0.0;
+                self.state = PlayerState::Stopped;
             
             } else if self.vel.x > self.rules.friction {
                 

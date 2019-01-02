@@ -37,23 +37,6 @@ impl App {
         true
     }
 
-    fn pressed(&mut self, btn: &Button) {
-        let x_vel = match btn {
-            &Button::Keyboard(Key::Right)    => 1.0,
-            &Button::Keyboard(Key::Left)     => -1.0,
-            _                                => 0.0
-
-        };
-        let y_vel = match btn {
-            &Button::Keyboard(Key::Down)     => 1.0,
-            &Button::Keyboard(Key::Up)       => -1.0,
-            _                                => 0.0
-        };
-        self.player.vel.x += x_vel;
-        self.player.vel.y += y_vel;
-        
-    }
-
 }
 
 fn main() {
@@ -81,16 +64,17 @@ fn main() {
         if let Some(r) = e.render_args() {
             app.render(&r);
         }
+        if let Some(k) = e.button_args() {
+            if k.state == ButtonState::Press {
+                app.player.pressed(&k.button);
+            }
+        }
         if let Some(u) = e.update_args() {
             if !app.update(&u) {
                 break;
             }
         }
-        if let Some(k) = e.button_args() {
-            if k.state == ButtonState::Press {
-                app.pressed(&k.button);
-            }
-        }
+        
 
     }
 }
