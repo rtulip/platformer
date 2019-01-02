@@ -94,13 +94,13 @@ impl Player {
     }
     
     fn update(&mut self){
-        self.pos.x = (self.pos.x + self.pos.x_vel);
+        self.pos.x = self.pos.x + self.pos.x_vel;
         self.pos.y = self.pos.y + self.pos.y_vel;
     }
 
     pub fn moving(&mut self) -> bool {
 
-        if self.pos.x_vel.abs() > 0.1 || self.pos.y_vel.abs() > 0.1 {
+        if self.pos.x_vel.abs() != 0.0 {
             true
         } else {
             false
@@ -110,26 +110,14 @@ impl Player {
 
     pub fn decelerate(&mut self, deceleration_factor: f64){
 
-        if self.pos.x_vel > 0.1 {
+        if self.pos.x_vel.abs() <= deceleration_factor {
+            self.pos.x_vel = 0.0;
+            println!("Reset x_vel: {}",self.pos.x_vel);
+        } else if self.pos.x_vel > deceleration_factor {
             self.pos.x_vel -= deceleration_factor;
-        } else if self.pos.x_vel < 0.1 {
+        } else if self.pos.x_vel < deceleration_factor {
             self.pos.x_vel += deceleration_factor;
-        } else if self.pos.x_vel > 0.0 && self.pos.x_vel <= 0.1 {
-            self.pos.x_vel = 0.0;
-        } else if self.pos.x_vel < 0.0 && self.pos.x_vel >= -0.1 {
-            self.pos.x_vel = 0.0;
         }
-
-        if self.pos.y_vel > 0.0 {
-            self.pos.y_vel -= deceleration_factor;
-        } else if self.pos.y_vel < 0.0 {
-            self.pos.y_vel += deceleration_factor;
-        } else if self.pos.y_vel > 0.0 && self.pos.y_vel <= 0.1 {
-            self.pos.y_vel = 0.0;
-        } else if self.pos.y_vel < 0.0 && self.pos.y_vel >= -0.1 {
-            self.pos.y_vel = 0.0;
-        }
-
     }
 }
 
@@ -149,7 +137,7 @@ fn main() {
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new(
             "spinning-square",
-            [200, 200]
+            [600, 600]
         )
         .opengl(opengl)
         .exit_on_esc(true)
@@ -157,8 +145,8 @@ fn main() {
         .unwrap();
 
     let starting_position = Position {
-        x: 0.0,
-        y: 0.0,
+        x: 10.0,
+        y: 10.0,
         x_vel: 0.0,
         y_vel: 0.0
     };
@@ -175,7 +163,7 @@ fn main() {
         deceleration: 0.1
     };
 
-    let mut events = Events::new(EventSettings::new()).ups(10);
+    let mut events = Events::new(EventSettings::new()).ups(5);
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
             app.render(&r);
