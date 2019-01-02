@@ -14,7 +14,6 @@ mod player;
 pub struct App {
     gl: GlGraphics,     // OpenGL drawing backend.
     player: player::player_model::Player,      // Player struct.
-    deceleration: f64
 }
 
 impl App {
@@ -32,10 +31,6 @@ impl App {
     }
 
     fn update(&mut self, args: &UpdateArgs) -> bool {
-
-        if self.player.moving() {
-            self.player.decelerate(self.deceleration);
-        }
 
         self.player.update();
 
@@ -78,23 +73,10 @@ fn main() {
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        player: player::player_model::Player {
-            gl: GlGraphics::new(opengl),
-            rotation: 0.0,
-            size: 25.0,
-            pos: player::player_model::Position {
-                x: 0.0,
-                y: 0.0
-            },
-            vel: player::player_model::Velocity {
-                x: 0.0,
-                y: 0.0
-            }
-        },
-        deceleration: 0.1
+        player: player::player_model::new(),
     };
 
-    let mut events = Events::new(EventSettings::new()).ups(10);
+    let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
             app.render(&r);

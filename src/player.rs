@@ -4,7 +4,7 @@ extern crate opengl_graphics;
 
 pub mod player_model {
     
-    use opengl_graphics::GlGraphics;
+    use opengl_graphics::{GlGraphics,OpenGL};
     use piston::input::RenderArgs;
 
     pub struct Player {
@@ -12,8 +12,17 @@ pub mod player_model {
         pub gl: GlGraphics,
         pub rotation: f64,
         pub size: f64,
+        pub state: PlayerState,
         pub pos: Position,
-        pub vel: Velocity
+        pub vel: Velocity,
+        pub rules: PlayerMovement,
+
+    }
+
+    pub struct PlayerMovement {
+
+        pub friction: f64,
+        pub max_velocity: Velocity,
 
     }
 
@@ -31,7 +40,44 @@ pub mod player_model {
 
     }
 
+    pub enum PlayerState{
+
+        Stopped,
+        Walking,
+        Falling
+
+    }
+
+    pub fn new() -> Player{
+        let opengl = OpenGL::V3_2;
+
+        let new_player = Player {
+            gl: GlGraphics::new(opengl),
+            rotation: 0.0,
+            size: 25.0,
+            state: PlayerState::Stopped,
+            pos: Position {
+                x: 50.0,
+                y: 50.0
+            },
+            vel: Velocity {
+                x: 0.0,
+                y: 0.0
+            },
+            rules: PlayerMovement {
+                friction: 0.03,
+                max_velocity: Velocity {
+                    x: 10.0,
+                    y: 10.0
+                }
+            }
+        };
+
+        new_player
+    }
+
     impl Player {
+        
         pub fn render(&mut self, args: &RenderArgs) {
             use graphics::*;
 
@@ -55,6 +101,8 @@ pub mod player_model {
         pub fn update(&mut self){
             self.pos.x = self.pos.x + self.vel.x;
             self.pos.y = self.pos.y + self.vel.y;
+
+            self.decelerate();
         }
 
         pub fn moving(&mut self) -> bool {
@@ -67,20 +115,27 @@ pub mod player_model {
 
         }
 
-        pub fn decelerate(&mut self, deceleration_factor: f64){
+        pub fn decelerate(&mut self){
 
             let mut scale = self.vel.x.abs().round();
             if scale == 0.0{
                 scale = 1.0;
             }
-            if self.vel.x.abs() <= deceleration_factor {
+
+            if self.vel.x.abs() <= self.rules.friction {
+                
                 self.vel.x = 0.0;
-                println!("Reset x_vel: {}",self.vel.x);
-            } else if self.vel.x > deceleration_factor {
-                self.vel.x -= deceleration_factor*scale;
-            } else if self.vel.x < deceleration_factor {
-                self.vel.x += deceleration_factor*scale;
+            
+            } else if self.vel.x > self.rules.friction {
+                
+                self.vel.x -= self.rules.friction*scale;
+            
+            } else if self.vel.x < self.rules.friction {
+            
+                self.vel.x += self.rules.friction*scale;
+            
             }
         }
+
     }
 }
