@@ -32,7 +32,11 @@ impl App {
 
     fn update(&mut self, args: &UpdateArgs) -> bool {
 
-        self.player.update();
+
+        self.player.update(player::player_model::PlayerUpdateArgs {
+            board_width: 600.0,
+            board_height: 400.0,
+        });
 
         true
     }

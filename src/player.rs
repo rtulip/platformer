@@ -40,6 +40,13 @@ pub mod player_model {
 
     }
 
+    pub struct PlayerUpdateArgs {
+
+        pub board_width:  f64,
+        pub board_height: f64
+
+    }
+
     pub enum PlayerState{
 
         Stopped,
@@ -47,6 +54,8 @@ pub mod player_model {
         Falling
 
     }
+
+    
 
     pub fn new() -> Player{
         let opengl = OpenGL::V3_2;
@@ -137,7 +146,7 @@ pub mod player_model {
             }        
         }
         
-        pub fn update(&mut self){
+        pub fn update(&mut self, args: PlayerUpdateArgs){
             match self.state {
                 PlayerState::Walking => {
                     self.pos.x = self.pos.x + self.vel.x;
@@ -151,6 +160,7 @@ pub mod player_model {
                     println!("Falling");
                 }
             }
+            self.check_collision(args.board_width, args.board_height)
         }
 
         pub fn decelerate(&mut self){
@@ -174,6 +184,18 @@ pub mod player_model {
                 self.vel.x += self.rules.friction*scale;
             
             }
+        }
+
+        pub fn check_collision(&mut self, width: f64, height: f64){
+
+            if self.pos.x < 0.0 {
+                self.pos.x = 0.0;
+                self.vel.x = -1.0*self.vel.x/4.0;
+            } else if self.pos.x + self.size > width {
+                self.pos.x = width-self.size;
+                self.vel.x = -1.0*self.vel.x/4.0; 
+            }
+
         }
 
     }
