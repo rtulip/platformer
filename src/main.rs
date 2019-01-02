@@ -27,7 +27,6 @@ impl App {
         });
 
         self.player.render(args);
-        println!("{},{}", self.player.pos.x_vel,self.player.pos.y_vel);
     }
 
     fn update(&mut self, args: &UpdateArgs) -> bool {
@@ -110,13 +109,17 @@ impl Player {
 
     pub fn decelerate(&mut self, deceleration_factor: f64){
 
+        let mut scale = self.pos.x_vel.abs().round();
+        if scale == 0.0{
+            scale = 1.0;
+        }
         if self.pos.x_vel.abs() <= deceleration_factor {
             self.pos.x_vel = 0.0;
             println!("Reset x_vel: {}",self.pos.x_vel);
         } else if self.pos.x_vel > deceleration_factor {
-            self.pos.x_vel -= deceleration_factor;
+            self.pos.x_vel -= deceleration_factor*scale;
         } else if self.pos.x_vel < deceleration_factor {
-            self.pos.x_vel += deceleration_factor;
+            self.pos.x_vel += deceleration_factor*scale;
         }
     }
 }
@@ -163,7 +166,7 @@ fn main() {
         deceleration: 0.1
     };
 
-    let mut events = Events::new(EventSettings::new()).ups(5);
+    let mut events = Events::new(EventSettings::new()).ups(10);
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
             app.render(&r);
