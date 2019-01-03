@@ -14,8 +14,8 @@ mod map;
 
 pub struct App {
     gl: GlGraphics,     // OpenGL drawing backend.
-    player: player::player_model::Player,      // Player struct.
-    map: map::map_model::Map,
+    player: player::Player,      // Player struct.
+    map: map::Map,
 }
 
 impl App {
@@ -35,10 +35,7 @@ impl App {
     fn update(&mut self, args: &UpdateArgs) -> bool {
 
 
-        self.player.update(player::player_model::PlayerUpdateArgs {
-            board_width: 600.0,
-            board_height: 400.0,
-        });
+        self.player.update(&self.map);
 
         true
     }
@@ -62,23 +59,23 @@ fn main() {
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        player: player::player_model::new(),
-        map: map::map_model::new(600.0, 400.0, 25.0)
+        player: player::new(),
+        map: map::new(600.0, 400.0, 25.0)
     };
 
-    app.map.set_block_type(3, 0, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 1, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 2, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 3, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 4, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 7, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 8, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 9, map::map_model::BlockType::Ground);
-    app.map.set_block_type(3, 10, map::map_model::BlockType::Ground);
-    app.map.set_block_type(5, 4, map::map_model::BlockType::Ground);
-    app.map.set_block_type(5, 5, map::map_model::BlockType::Ground);
-    app.map.set_block_type(5, 6, map::map_model::BlockType::Ground);
-    app.map.set_block_type(5, 7, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 0, map::BlockType::Ground);
+    //app.map.set_block_type(3, 1, map::BlockType::Ground);
+    app.map.set_block_type(3, 2, map::BlockType::Ground);
+    //app.map.set_block_type(3, 3, map::BlockType::Ground);
+    app.map.set_block_type(3, 4, map::BlockType::Ground);
+    app.map.set_block_type(3, 7, map::BlockType::Ground);
+    app.map.set_block_type(3, 8, map::BlockType::Ground);
+    app.map.set_block_type(3, 9, map::BlockType::Ground);
+    app.map.set_block_type(3, 10, map::BlockType::Ground);
+    app.map.set_block_type(5, 4, map::BlockType::Ground);
+    app.map.set_block_type(5, 5, map::BlockType::Ground);
+    app.map.set_block_type(5, 6, map::BlockType::Ground);
+    app.map.set_block_type(5, 7, map::BlockType::Ground);
     
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
