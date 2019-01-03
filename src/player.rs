@@ -106,11 +106,11 @@ impl Player {
                 // Start movement & switch State
                 match btn {
                     &Button::Keyboard(Key::Right) => {
-                        self.vel.x += 1.5;
+                        self.update_velocity(1.5, 0.0);
                         self.state = PlayerState::Walking;
                     },
                     &Button::Keyboard(Key::Left) => {
-                        self.vel.x -= 1.5;
+                        self.update_velocity(-1.5, 0.0);
                         self.state = PlayerState::Walking
                     },
                     &Button::Keyboard(Key::Up) => {
@@ -127,34 +127,29 @@ impl Player {
                 
                 match btn {
                     &Button::Keyboard(Key::Right) => {
-                        self.vel.x += 1.0;
+                        self.update_velocity(1.0, 0.0);
                     },
                     &Button::Keyboard(Key::Left) => {
-                        self.vel.x -= 1.0;
+                        self.update_velocity(-1.0, 0.0);
                     },
                     _ => {}  
                 }
-
             }
-
         }        
     }
     
     pub fn update(&mut self, args: &super::map::Map){
         match self.state {
             PlayerState::Walking => {
-                self.pos.x = self.pos.x + self.vel.x;
-                self.pos.y = self.pos.y + self.vel.y;
+                self.update_position(self.vel.x, self.vel.y);
                 self.decelerate();
             },
             PlayerState::Stopped => {
-                self.vel.x = 0.0;
-                self.vel.y = 0.0;
+                self.set_velocity(0.0, 0.0);
             },
             PlayerState::Falling => {
-                self.vel.y += self.rules.gravity;
-                self.pos.x = self.pos.x + self.vel.x;
-                self.pos.y = self.pos.y + self.vel.y;
+                self.update_velocity(0.0, self.rules.gravity);
+                self.update_position(self.vel.x, self.vel.y);
                 self.decelerate();
             }
         }
@@ -169,17 +164,16 @@ impl Player {
         }
 
         if self.vel.x.abs() <= self.rules.friction {
-            
-            self.vel.x = 0.0;
+            self.set_velocity(0.0, self.vel.y);
             self.state = PlayerState::Stopped;
         
         } else if self.vel.x > self.rules.friction {
             
-            self.vel.x -= self.rules.friction*scale;
+            self.update_velocity(-1.0*self.rules.friction*scale, 0.0);
         
         } else if self.vel.x < self.rules.friction {
         
-            self.vel.x += self.rules.friction*scale;
+            self.update_velocity(self.rules.friction*scale, 0.0);
         
         }
     }
@@ -215,7 +209,7 @@ impl Player {
             }
 
             if self.pos.y + self.size > b21.y{
-                self.pos.y = b21.y - self.size;
+                self.set_position(self.pos.x, b21.y - self.size);
                 println!("Setting Position! {},{}",self.pos.y, b21.y);
             }
             
@@ -223,17 +217,25 @@ impl Player {
         }
 
         if self.pos.x < 0.0 {
-            self.pos.x = 0.0;
-            self.vel.x = -1.0 * self.vel.x / 4.0;
+           
+            self.set_position(0.0, self.pos.y);
+            self.set_velocity(-1.0 * self.vel.x / 4.0, self.vel.y);
+
         } else if self.pos.x + self.size > map.map_width as f64 * map.grid_size {
-            self.pos.x = map.map_width as f64 * map.grid_size - self.size;
-            self.vel.x = -1.0 * self.vel.x / 4.0; 
+            
+            self.set_position(map.map_width as f64 * map.grid_size - self.size, self.pos.y);
+            self.set_velocity(-1.0 * self.vel.x / 4.0, self.vel.y);
+            
         } else if self.pos.y < 0.0 {
-            self.pos.y = 0.0;
-            self.vel.y = -1.0 * self.vel.y / 4.0;
+            
+            self.set_position(self.pos.x, 0.0);
+            self.set_velocity(self.vel.x, -1.0 * self.vel.y / 4.0);
+            
         } else if self.pos.y + self.size > map.map_height as f64 * map.grid_size {
-            self.pos.y = map.map_height as f64 * map.grid_size - self.size;
-            self.vel.y = -1.0 * self.vel.y / 4.0
+            
+            self.set_position(self.pos.x, map.map_height as f64 * map.grid_size - self.size);
+            self.set_velocity(self.vel.x, -1.0 * self.vel.y / 4.0);
+            
         }
 
     }
@@ -246,11 +248,11 @@ impl Player {
 
             },
             PlayerState::Walking => {
-                self.vel.y += -7.0;
+                self.update_velocity(0.0, -7.0);
                 self.state = PlayerState::Falling;
             },
             PlayerState::Stopped => {
-                self.vel.y += -7.0;
+                self.update_velocity(0.0, -7.0);
                 self.state = PlayerState::Falling;
             }
 

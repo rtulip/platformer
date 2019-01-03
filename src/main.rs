@@ -64,10 +64,12 @@ fn main() {
     };
 
     app.map.set_block_type(3, 0, map::BlockType::Ground);
-    //app.map.set_block_type(3, 1, map::BlockType::Ground);
+    app.map.set_block_type(3, 1, map::BlockType::Ground);
     app.map.set_block_type(3, 2, map::BlockType::Ground);
-    //app.map.set_block_type(3, 3, map::BlockType::Ground);
+    app.map.set_block_type(3, 3, map::BlockType::Ground);
     app.map.set_block_type(3, 4, map::BlockType::Ground);
+    app.map.set_block_type(3, 5, map::BlockType::Ground);
+    app.map.set_block_type(3, 6, map::BlockType::Ground);
     app.map.set_block_type(3, 7, map::BlockType::Ground);
     app.map.set_block_type(3, 8, map::BlockType::Ground);
     app.map.set_block_type(3, 9, map::BlockType::Ground);
