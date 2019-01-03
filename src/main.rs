@@ -28,7 +28,7 @@ impl App {
             // Clear the screen.
             clear(GREEN, gl);
         });
-
+        self.map.render(args);
         self.player.render(args);
     }
 
@@ -66,6 +66,20 @@ fn main() {
         map: map::map_model::new(600.0, 400.0, 25.0)
     };
 
+    app.map.set_block_type(3, 0, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 1, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 2, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 3, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 4, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 7, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 8, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 9, map::map_model::BlockType::Ground);
+    app.map.set_block_type(3, 10, map::map_model::BlockType::Ground);
+    app.map.set_block_type(5, 4, map::map_model::BlockType::Ground);
+    app.map.set_block_type(5, 5, map::map_model::BlockType::Ground);
+    app.map.set_block_type(5, 6, map::map_model::BlockType::Ground);
+    app.map.set_block_type(5, 7, map::map_model::BlockType::Ground);
+    
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
