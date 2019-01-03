@@ -40,15 +40,14 @@ pub struct Map {
 }
 
 pub fn new(width: f64, height: f64, block_size: f64) -> Map{
-
     
     let block_height: usize = (height/block_size) as usize;
     let block_width: usize = (width/block_size) as usize;
 
     let mut block_vec: Vec<Vec<Block>> = Vec::new();
-    for row in 0..block_width {
+    for row in 0..block_height {
         let mut inner_block_vec: Vec<Block> = Vec::new();
-        for col in 0..block_height {
+        for col in 0..block_width {
 
             inner_block_vec.push( Block{
                 x: col as f64 * block_size,
@@ -79,8 +78,8 @@ impl Map {
         
     pub fn render(&mut self, args: &RenderArgs){
 
-        for row in 0..self.map_width {
-            for col in 0..self.map_height {
+        for row in 0..self.map_height {
+            for col in 0..self.map_width {
                 
                 match self.blocks[row][col].block_type {
                     BlockType::Empty => {

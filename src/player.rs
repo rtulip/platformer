@@ -121,7 +121,15 @@ impl Player {
                 
             },
             PlayerState::Falling => {
-                // Allow movement
+                match btn {
+                    &Button::Keyboard(Key::Right) => {
+                        self.update_velocity(1.0, 0.0);
+                    },
+                    &Button::Keyboard(Key::Left) => {
+                        self.update_velocity(-1.0, 0.0);
+                    },
+                    _ => {}  
+                }
             },
             PlayerState::Walking => {
                 
@@ -131,6 +139,9 @@ impl Player {
                     },
                     &Button::Keyboard(Key::Left) => {
                         self.update_velocity(-1.0, 0.0);
+                    },
+                    &Button::Keyboard(Key::Up) => {
+                        self.jump()
                     },
                     _ => {}  
                 }
@@ -184,9 +195,17 @@ impl Player {
 
         let col1 = (self.pos.x / map.grid_size).trunc() as usize;
         let row1 = (self.pos.y / map.grid_size).trunc() as usize;
-        let col2 = col1 + 1;
-        let row2 = row1 + 1;
+        let mut col2 = col1 + 1;
+        let mut row2 = row1 + 1;
 
+        
+        if col2 >= map.map_width{
+            col2 = col1;
+        }
+        if row2 >= map.map_height{
+            row2 = row1;
+        }
+    
         let mut b11 = map.blocks[row1][col1];
         let mut b12 = map.blocks[row1][col2];
         let mut b21 = map.blocks[row2][col1];
@@ -210,7 +229,6 @@ impl Player {
 
             if self.pos.y + self.size > b21.y{
                 self.set_position(self.pos.x, b21.y - self.size);
-                println!("Setting Position! {},{}",self.pos.y, b21.y);
             }
             
 
@@ -248,11 +266,11 @@ impl Player {
 
             },
             PlayerState::Walking => {
-                self.update_velocity(0.0, -7.0);
+                self.update_velocity(0.0, -9.5);
                 self.state = PlayerState::Falling;
             },
             PlayerState::Stopped => {
-                self.update_velocity(0.0, -7.0);
+                self.update_velocity(0.0, -9.5);
                 self.state = PlayerState::Falling;
             }
 

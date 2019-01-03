@@ -60,24 +60,25 @@ fn main() {
     let mut app = App {
         gl: GlGraphics::new(opengl),
         player: player::new(),
-        map: map::new(600.0, 400.0, 25.0)
+        map: map::new(600.0, 425.0, 25.0)
     };
 
-    app.map.set_block_type(3, 0, map::BlockType::Ground);
-    app.map.set_block_type(3, 1, map::BlockType::Ground);
-    app.map.set_block_type(3, 2, map::BlockType::Ground);
-    app.map.set_block_type(3, 3, map::BlockType::Ground);
-    app.map.set_block_type(3, 4, map::BlockType::Ground);
-    app.map.set_block_type(3, 5, map::BlockType::Ground);
-    app.map.set_block_type(3, 6, map::BlockType::Ground);
-    app.map.set_block_type(3, 7, map::BlockType::Ground);
-    app.map.set_block_type(3, 8, map::BlockType::Ground);
-    app.map.set_block_type(3, 9, map::BlockType::Ground);
-    app.map.set_block_type(3, 10, map::BlockType::Ground);
-    app.map.set_block_type(5, 4, map::BlockType::Ground);
-    app.map.set_block_type(5, 5, map::BlockType::Ground);
-    app.map.set_block_type(5, 6, map::BlockType::Ground);
-    app.map.set_block_type(5, 7, map::BlockType::Ground);
+    for i in 0..16 {
+        app.map.set_block_type(3, i, map::BlockType::Ground);
+    }
+
+    for i in 5..24 {
+        app.map.set_block_type(6, i, map::BlockType::Ground);
+    
+    }
+
+    for i in 0..16 {
+        app.map.set_block_type(10, i, map::BlockType::Ground);
+    }
+
+    for i in 0..24 {
+        app.map.set_block_type(16, i, map::BlockType::Ground);
+    }
     
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
