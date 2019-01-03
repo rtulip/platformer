@@ -64,12 +64,12 @@ pub fn new() -> Player{
             y: 0.0
         },
         rules: PlayerMovement {
-            friction: 0.5,
+            friction: 0.05,
             max_velocity: Velocity {
                 x: 10.0,
                 y: 10.0
             },
-            gravity: -0.5
+            gravity: 0.5
         }
     };
 
@@ -113,6 +113,9 @@ impl Player {
                         self.vel.x -= 1.5;
                         self.state = PlayerState::Walking
                     },
+                    &Button::Keyboard(Key::Up) => {
+                        self.jump()
+                    },
                     _ => {}
                 }
                 
@@ -149,7 +152,7 @@ impl Player {
                 self.vel.y = 0.0;
             },
             PlayerState::Falling => {
-                self.vel.y -= self.rules.gravity;
+                self.vel.y += self.rules.gravity;
                 self.pos.x = self.pos.x + self.vel.x;
                 self.pos.y = self.pos.y + self.vel.y;
                 self.decelerate();
@@ -235,5 +238,24 @@ impl Player {
 
     }
 
+    fn jump(&mut self){
+
+        match self.state {
+
+            PlayerState::Falling => {
+
+            },
+            PlayerState::Walking => {
+                self.vel.y += -7.0;
+                self.state = PlayerState::Falling;
+            },
+            PlayerState::Stopped => {
+                self.vel.y += -7.0;
+                self.state = PlayerState::Falling;
+            }
+
+        }
+
+    }
     
 }
