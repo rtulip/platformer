@@ -257,5 +257,32 @@ impl Player {
         }
 
     }
+
+    fn update_velocity(&mut self, delta_x: f64, delta_y: f64){
+
+        self.vel.x += delta_x;
+        self.vel.y += delta_y;
+
+    }
+
+    fn set_velocity(&mut self, new_x: f64, new_y: f64){
+
+        self.vel.x = new_x;
+        self.vel.y = new_y;
+
+    }
     
+    fn update_position(&mut self, delta_x: f64, delta_y: f64){
+
+        self.pos.x += delta_x;
+        self.pos.y += delta_y;
+
+    }
+
+    fn set_position(&mut self, new_x: f64, new_y: f64){
+
+        self.pos.x = new_x;
+        self.pos.y = new_y;
+
+    }
 }
