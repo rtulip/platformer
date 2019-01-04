@@ -38,6 +38,16 @@ pub struct Velocity {
     pub y: f64
 
 }
+
+pub enum Direction {
+
+    Up,
+    Down,
+    Left,
+    Right
+
+}
+
 #[derive(Debug)]
 pub enum PlayerState{
 
@@ -150,6 +160,7 @@ impl Player {
     }
     
     pub fn update(&mut self, args: &super::map::Map){
+        
         match self.state {
             PlayerState::Walking => {
                 self.update_position(self.vel.x, self.vel.y);
@@ -164,7 +175,9 @@ impl Player {
                 self.decelerate();
             }
         }
+
         self.check_collision(args);
+
     }
 
     pub fn decelerate(&mut self){
@@ -177,7 +190,6 @@ impl Player {
         if self.vel.x.abs() <= self.rules.friction {
             self.set_velocity(0.0, self.vel.y);
             self.state = PlayerState::Stopped;
-        
         } else if self.vel.x > self.rules.friction {
             
             self.update_velocity(-1.0*self.rules.friction*scale, 0.0);
@@ -192,7 +204,6 @@ impl Player {
     pub fn check_collision(&mut self, map: &super::map::Map){
 
         // Find blocks surrounding player
-
         let col1 = (self.pos.x / map.grid_size).trunc() as usize;
         let row1 = (self.pos.y / map.grid_size).trunc() as usize;
         let mut col2 = col1 + 1;
@@ -211,51 +222,89 @@ impl Player {
         let mut b21 = map.blocks[row2][col1];
         let mut b22 = map.blocks[row2][col2];
 
-        if b21.is_passable() && b22.is_passable(){
+        match (b21.is_passable(), b22.is_passable()){
 
-            self.state = PlayerState::Falling;
+            (true, true) => {
+                self.state = PlayerState::Falling;
+            },
+            _ => {
+                match self.state {
 
-        } else {
-
-            match self.state {
-
-                PlayerState::Falling => {
-                    self.state = PlayerState::Walking;
-                },
-                _ => {
-                    
+                    PlayerState::Falling => {
+                        self.state = PlayerState::Walking;
+                    },
+                    _ => {}
                 }
-            }
 
-            if self.pos.y + self.size > b21.y{
-                self.set_position(self.pos.x, b21.y - self.size);
+                if self.pos.y + self.size > b21.y{
+                    self.set_position(self.pos.x, b21.y - self.size);
+                } 
+            }
+        }
+
+        // Check for collisions above
+        if self.vel.y < 0.0{
+            match (b11.is_passable(), b12.is_passable()){
+
+                (false, _) | (_, false) => {
+                    self.collide(Position{x: self.pos.x, y: b11.y+b11.size}, Direction::Up);
+                    return; // return to avoid checking for L/R collisions while "in" a block above
+                },
+                _ => {}
+
             }
             
+            
+        }
+        
+        if self.vel.x > 0.0 && self.pos.x + self.size > b12.x {
+
+            match (self.pos.y+self.size > b22.y,b12.is_passable(),b22.is_passable()) {
+                (false, false, _) => {
+                    self.collide(Position{x: b12.x - self.size, y: self.pos.y}, Direction::Right);
+                },
+                (true, false, _) | (true, _, false) => {
+                    self.collide(Position{x: b12.x - self.size, y: self.pos.y}, Direction::Right);
+                }
+                _ => {}
+            }
 
         }
+
+        if self.vel.x < 0.0 && self.pos.x < b11.x + b11.size {
+            
+            match (self.pos.y + self.size > b21.y, b11.is_passable(), b21.is_passable()){
+
+                (false, false, _)=> {
+                    self.collide(Position{x:b11.x+b11.size, y: self.pos.y}, Direction::Left);
+                },
+                (true, false, _) | (true, _, false) => {
+                    self.collide(Position{x:b11.x+b11.size, y: self.pos.y}, Direction::Left);
+                }
+                _ => {}
+
+            }
+
+        }     
 
         if self.pos.x < 0.0 {
            
-            self.set_position(0.0, self.pos.y);
-            self.set_velocity(-1.0 * self.vel.x / 4.0, self.vel.y);
-
+            self.collide( Position {x: 0.0, y: self.pos.y}, Direction::Left);
+            
         } else if self.pos.x + self.size > map.map_width as f64 * map.grid_size {
             
-            self.set_position(map.map_width as f64 * map.grid_size - self.size, self.pos.y);
-            self.set_velocity(-1.0 * self.vel.x / 4.0, self.vel.y);
+            self.collide(Position {x: map.map_width as f64 * map.grid_size - self.size, y: self.pos.y}, Direction::Right);
             
         } else if self.pos.y < 0.0 {
             
-            self.set_position(self.pos.x, 0.0);
-            self.set_velocity(self.vel.x, -1.0 * self.vel.y / 4.0);
+            self.collide( Position {x: self.pos.x, y: 0.0}, Direction::Up);
             
         } else if self.pos.y + self.size > map.map_height as f64 * map.grid_size {
             
-            self.set_position(self.pos.x, map.map_height as f64 * map.grid_size - self.size);
-            self.set_velocity(self.vel.x, -1.0 * self.vel.y / 4.0);
+            self.collide(Position {x: self.pos.x, y:map.map_height as f64 * map.grid_size - self.size}, Direction::Down);
             
         }
-
+        
     }
 
     fn jump(&mut self){
@@ -303,6 +352,22 @@ impl Player {
 
         self.pos.x = new_x;
         self.pos.y = new_y;
+
+    }
+
+    fn collide(&mut self, pos: Position, dir: Direction){
+
+        match dir {
+            Direction::Up | Direction:: Down => {
+                self.set_position(pos.x, pos.y);
+                self.set_velocity(self.vel.x, -1.0 * self.vel.y / 4.0);
+            },
+            Direction::Left | Direction::Right => {
+                self.set_position(pos.x, pos.y);
+                self.set_velocity(-1.0 * self.vel.x / 4.0, self.vel.y);
+            }
+
+        }
 
     }
 }

@@ -68,20 +68,24 @@ fn main() {
     }
 
     for i in 5..24 {
-        app.map.set_block_type(6, i, map::BlockType::Ground);
+        app.map.set_block_type(7, i, map::BlockType::Ground);
     
     }
 
     for i in 0..16 {
-        app.map.set_block_type(10, i, map::BlockType::Ground);
+        app.map.set_block_type(11, i, map::BlockType::Ground);
     }
 
     for i in 0..24 {
         app.map.set_block_type(16, i, map::BlockType::Ground);
     }
-    
+
+    app.map.set_block_type(6, 4, map::BlockType::Ground);
+    app.map.set_block_type(2, 9, map::BlockType::Ground);
+    app.map.set_block_type(10, 16, map::BlockType::Ground);
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
+        
         if let Some(r) = e.render_args() {
             app.render(&r);
         }
@@ -95,7 +99,5 @@ fn main() {
                 break;
             }
         }
-        
-
     }
 }
